@@ -198,8 +198,8 @@ class SocketIO extends EventTarget {
    *
    * https://socket.io/docs/client-api/#socket-on-eventname-callback
    */
-  off(type) {
-    this.removeEventListener(type);
+  off(type, callback) {
+    this.removeEventListener(type, callback);
   }
 
   /*
