@@ -1,5 +1,6 @@
 import URL from 'url-parse';
 import WebSocket from './websocket';
+import { SocketIO } from './socket-io';
 import dedupe from './helpers/dedupe';
 import EventTarget from './event/target';
 import { CLOSE_CODES } from './constants';
@@ -119,21 +120,30 @@ class Server extends EventTarget {
   /*
    * Sends a generic message event to all mock clients.
    */
-  emit(event, data, options = {}) {
+  emit(event, userData, options = {}) {
     let { websockets } = options;
 
     if (!websockets) {
       websockets = networkBridge.websocketsLookup(this.url);
     }
 
-    if (typeof options !== 'object' || arguments.length > 3) {
-      data = Array.prototype.slice.call(arguments, 1, arguments.length);
-      data = data.map(item => normalizeSendData(item));
-    } else {
-      data = normalizeSendData(data);
-    }
+    let normalizedData;
 
     websockets.forEach(socket => {
+      let data;
+      if (socket instanceof SocketIO) {
+        data = userData;
+      } else {
+        if (!normalizedData) {
+          if (typeof options !== 'object' || arguments.length > 3) {
+            normalizedData = Array.prototype.slice.call(arguments, 1, arguments.length)
+              .map(item => normalizeSendData(item));
+          } else {
+            normalizedData = normalizeSendData(userData);
+          }
+        }
+        data = normalizedData;
+      }
       if (Array.isArray(data)) {
         socket.dispatchEvent(
           createMessageEvent({
