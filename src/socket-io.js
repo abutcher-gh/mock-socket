@@ -247,9 +247,9 @@ export class SocketIO extends EventTarget {
         listener.apply(this, customArguments);
       } else {
         // Regular WebSockets expect a MessageEvent but Socketio.io just wants raw data
-        //  payload instanceof MessageEvent works, but you can't isntance of NodeEvent
-        //  for now we detect if the output has data defined on it
-        listener.call(this, event.data ? event.data : event);
+        // payload instanceof MessageEvent works, but you can't instance of NodeEvent
+        // for now we detect if the output has data defined on it
+        listener.call(this, event.data !== undefined ? event.data : event);
       }
     });
   }
